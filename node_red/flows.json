@@ -1,0 +1,315 @@
+[
+    {
+        "id": "2269c7c44e4d112e",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5d3c5a5e623f643b",
+        "type": "ui_gauge",
+        "z": "2269c7c44e4d112e",
+        "name": "Temperatura (°C)",
+        "group": "groupMonitoramento",
+        "order": 1,
+        "width": 6,
+        "height": 6,
+        "gtype": "donut",
+        "title": "Temperatura (°C)",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 50,
+        "colors": [
+            "#009688",
+            "#FFC107",
+            "#F44336"
+        ],
+        "seg1": 25,
+        "seg2": 35,
+        "diff": false,
+        "x": 1310,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "cfc4d98862f44ef9",
+        "type": "ui_gauge",
+        "z": "2269c7c44e4d112e",
+        "name": "Peso (Kg)",
+        "group": "groupMonitoramento",
+        "order": 2,
+        "width": 6,
+        "height": 6,
+        "gtype": "donut",
+        "title": "Peso (Kg)",
+        "label": "Kg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "colors": [
+            "#009688",
+            "#FFC107",
+            "#F44336"
+        ],
+        "seg1": 3,
+        "seg2": 6,
+        "diff": false,
+        "x": 1040,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "4cd9e0b98b4685fc",
+        "type": "ui_chart",
+        "z": "2269c7c44e4d112e",
+        "name": "Histórico Temperatura e Peso",
+        "group": "d9634f520b5f062d",
+        "order": 1,
+        "width": 12,
+        "height": 8,
+        "label": "Histórico Temperatura e Peso",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Sem dados",
+        "ymin": 0,
+        "ymax": 60,
+        "removeOlder": 30,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#009688",
+            "#FFC107"
+        ],
+        "outputs": 1,
+        "x": 930,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e6f3b0f76fe7759f",
+        "type": "ui_text",
+        "z": "2269c7c44e4d112e",
+        "group": "groupMonitoramento",
+        "order": 3,
+        "width": 12,
+        "height": 2,
+        "name": "Status de Alerta",
+        "label": "",
+        "format": "<div style=\"font-weight:bold; font-size:20px; color:{{msg.color}};\">{{msg.payload}}</div>",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1420,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "ec48b1b6dc68c667",
+        "type": "ui_button",
+        "z": "2269c7c44e4d112e",
+        "name": "Resetar Alertas",
+        "group": "93091a532db8209d",
+        "order": 1,
+        "width": 6,
+        "height": 2,
+        "passthru": false,
+        "label": "Resetar Alertas",
+        "tooltip": "Limpar mensagens e histórico",
+        "color": "#ffffff",
+        "bgcolor": "#607D8B",
+        "icon": "refresh",
+        "payload": "reset",
+        "payloadType": "str",
+        "x": 500,
+        "y": 40,
+        "wires": [
+            [
+                "a0e04290131d51e5"
+            ]
+        ]
+    },
+    {
+        "id": "0e34587599200579",
+        "type": "ui_toast",
+        "z": "2269c7c44e4d112e",
+        "position": "top right",
+        "displayTime": "7000",
+        "highlight": "",
+        "outputs": 0,
+        "ok": "OK",
+        "topic": "",
+        "name": "Notificação de Alerta",
+        "x": 620,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "9fd87b86cfb72cba",
+        "type": "mqtt in",
+        "z": "2269c7c44e4d112e",
+        "name": "Temperatura MQTT",
+        "topic": "esp32/conserva/temperatura",
+        "broker": "mqttBroker",
+        "inputs": 0,
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "f5f5e0510c6d1b03"
+            ]
+        ]
+    },
+    {
+        "id": "9f237396d5122d8c",
+        "type": "mqtt in",
+        "z": "2269c7c44e4d112e",
+        "name": "Peso MQTT",
+        "topic": "esp32/conserva/peso",
+        "broker": "mqttBroker",
+        "inputs": 0,
+        "x": 70,
+        "y": 220,
+        "wires": [
+            [
+                "ce00d1a3dbb726e0"
+            ]
+        ]
+    },
+    {
+        "id": "f5f5e0510c6d1b03",
+        "type": "function",
+        "z": "2269c7c44e4d112e",
+        "name": "Processa Temperatura",
+        "func": "const temp = parseFloat(msg.payload);\n\nlet color = '#009688';\nlet alert = 'Temperatura dentro da faixa normal.';\n\nif(temp < 10) {\n    color = '#F44336';\n    alert = '🚨 Temperatura MUITO BAIXA!';\n} else if(temp > 35) {\n    color = '#F44336';\n    alert = '🚨 Temperatura MUITO ALTA!';\n} else if(temp > 25) {\n    color = '#FFC107';\n    alert = '⚠️ Temperatura elevada, fique atento.';\n}\n\n// Envia para gauge e texto\nreturn [{payload: temp}, {payload: alert, color: color}, {payload: {series: ['Temperatura'], data: [[temp]], labels: [new Date().toLocaleTimeString()]}}];",
+        "outputs": 3,
+        "noerr": 0,
+        "x": 680,
+        "y": 220,
+        "wires": [
+            [
+                "5d3c5a5e623f643b"
+            ],
+            [
+                "e6f3b0f76fe7759f",
+                "0e34587599200579"
+            ],
+            [
+                "4cd9e0b98b4685fc"
+            ]
+        ]
+    },
+    {
+        "id": "ce00d1a3dbb726e0",
+        "type": "function",
+        "z": "2269c7c44e4d112e",
+        "name": "Processa Peso",
+        "func": "const peso = parseFloat(msg.payload);\n\nlet color = '#009688';\nlet alert = 'Peso dentro da faixa normal.';\n\nif(peso < 0.5) {\n    color = '#F44336';\n    alert = '🚨 Peso MUITO BAIXO!';\n} else if(peso > 6) {\n    color = '#F44336';\n    alert = '🚨 Peso MUITO ALTO!';\n} else if(peso > 3) {\n    color = '#FFC107';\n    alert = '⚠️ Peso elevado, fique atento.';\n}\n\n// Envia para gauge e texto\nreturn [{payload: peso}, {payload: alert, color: color}, {payload: {series: ['Peso'], data: [[peso]], labels: [new Date().toLocaleTimeString()]}}];",
+        "outputs": 3,
+        "noerr": 0,
+        "x": 620,
+        "y": 540,
+        "wires": [
+            [
+                "cfc4d98862f44ef9"
+            ],
+            [
+                "e6f3b0f76fe7759f",
+                "0e34587599200579"
+            ],
+            [
+                "4cd9e0b98b4685fc"
+            ]
+        ]
+    },
+    {
+        "id": "a0e04290131d51e5",
+        "type": "function",
+        "z": "2269c7c44e4d112e",
+        "name": "Resetar Dashboard",
+        "func": "// Reset mensagem e gráfico\nreturn [{payload: 0}, {payload: '', color: '#009688'}, {payload: {series: ['Temperatura', 'Peso'], data: [[], []], labels: []}}];",
+        "outputs": 3,
+        "noerr": 0,
+        "x": 690,
+        "y": 120,
+        "wires": [
+            [
+                "5d3c5a5e623f643b"
+            ],
+            [
+                "e6f3b0f76fe7759f"
+            ],
+            [
+                "4cd9e0b98b4685fc"
+            ]
+        ]
+    },
+    {
+        "id": "groupMonitoramento",
+        "type": "ui_group",
+        "name": "Monitoramento",
+        "tab": "tabConserva",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false
+    },
+    {
+        "id": "d9634f520b5f062d",
+        "type": "ui_group",
+        "name": "Histórico",
+        "tab": "tabConserva",
+        "order": 2,
+        "disp": true,
+        "width": 12,
+        "collapse": false
+    },
+    {
+        "id": "93091a532db8209d",
+        "type": "ui_group",
+        "name": "Controle",
+        "tab": "tabConserva",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false
+    },
+    {
+        "id": "mqttBroker",
+        "type": "mqtt-broker",
+        "name": "Broker MQTT",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "tabConserva",
+        "type": "ui_tab",
+        "name": "Conserva",
+        "icon": "dashboard",
+        "order": 1
+    }
+]
